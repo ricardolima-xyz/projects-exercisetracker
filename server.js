@@ -17,6 +17,8 @@ app.use((req, res, next) => {
   console.log(`${req.method} ${req.path} - ${req.ip}`);
   console.log(`params:`);
   console.log(req.params);
+  console.log(`query:`);
+  console.log(req.query);
   console.log(`body:`);
   console.log(req.body);
   console.log('--------------------------------------------------------------------------------------');
@@ -64,31 +66,28 @@ app.post('/api/users/:uid/exercises', (req, res) => {
   }
 });
 
-app.get('/api/users/:uid/logs?', (req, res) => {
+app.get('/api/users/:uid/logs', (req, res) => {
   let index = Number.parseInt(req.params.uid);
   if (isNaN(index))
     res.json({ error: 'Invalid user id'});
   else if (index >= users.length)
     res.json({ error: 'User not found'});
   else {
-    let result = [];
+    let result = {
+      username: users[index],
+      count:0,
+      id: index.toString(),
+      log: []
+    };
     exercises.forEach((exercise) => {
       if (exercise._id == index)
-        result.push(exercise);
+        result.log.push({
+          description: exercise.description,
+          duration: exercise.duration,
+          date: exercise.date
+        });
+        result.count++;
     });
-
-    // TODO formatting and other fields
-    /* {
-      username: "fcc_test",
-      count: 1,
-      _id: "5fb5853f734231456ccb3b05",
-      log: [{
-        description: "test",
-        duration: 60,
-        date: "Mon Jan 01 1990",
-      }]
-    } */
-
     res.json(result);
   }
 });
