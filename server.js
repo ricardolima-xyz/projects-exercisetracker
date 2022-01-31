@@ -34,7 +34,7 @@ app.post('/api/users', (req, res) => {
 });
 
 app.get('/api/users', (req, res) => {
-  res.json(users.map((username, index) => {return {_id: index, username: username}}));
+  res.json(users.map((username, index) => {return {_id: index.toString(), username: username}}));
 });
 
 app.post('/api/users/:uid/exercises', (req, res) => {
