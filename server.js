@@ -73,22 +73,34 @@ app.get('/api/users/:uid/logs', (req, res) => {
   else if (index >= users.length)
     res.json({ error: 'User not found'});
   else {
-    let result = {
-      username: users[index],
-      count:0,
-      id: index.toString(),
-      log: []
-    };
+    let log = [];
     exercises.forEach((exercise) => {
-      if (exercise._id == index)
-        result.log.push({
+      let includeExcercise = (exercise._id == index);
+      if (req.query.from !== undefined && !isNaN(Date.parse(req.query.from))){
+        if(Date.parse(exercise.date) < Date.parse(req.query.from))
+          includeExcercise = false;
+      }
+      if (req.query.to !== undefined && !isNaN(Date.parse(req.query.to))){
+        if(Date.parse(exercise.date) > Date.parse(req.query.to))
+          includeExcercise = false;
+      }
+      if (req.query.limit !== undefined && !isNaN(Number.parseInt(req.query.limit))){
+        if(log.length >= Number.parseInt(req.query.limit))
+          includeExcercise = false;
+      }
+      if (includeExcercise)
+        log.push({
           description: exercise.description,
           duration: exercise.duration,
           date: exercise.date
         });
-        result.count++;
     });
-    res.json(result);
+    res.json({
+      username: users[index],
+      count: log.length,
+      id: index.toString(),
+      log: log
+    });
   }
 });
 
